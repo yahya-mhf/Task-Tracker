@@ -56,24 +56,28 @@ def Mess_with_data(argument, ID, name, Newname, status):
 
 
 ###########################################
-def Add_Task(name, data):
+def Add_Task(name, data, ID = 0, status = 'Todo'):
     print(f"Task name : {name}")
-    ID = 0
 
+    updatedAT = "Not updated"
     #data = readfile()
+
     if data:
-        ID = len(data)
+        if ID == len(data) - 1:
+            ID = len(data)
+        else:
+            updatedAT = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     else:
         data = dict()
 
 
     print(f"Task ID : {ID}")
     description = input("description : ")
-    status = "Todo"
+    #status = "Todo"
     createdAT = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # updatedAT = input("updatedAT : ") to add in update function
 
-    New_task = {'ID' : ID , 'description' : description, 'status' : status, 'createdAT' : createdAT, 'updatedAT' : None }
+
+    New_task = {'ID' : ID , 'description' : description, 'status' : status, 'createdAT' : createdAT, 'updatedAT' : updatedAT }
 
     data[f"Task{ID} : {name}"] = New_task
 
@@ -81,14 +85,26 @@ def Add_Task(name, data):
 ##################################################################################################################
 
 def Update_Task(ID, Newname, data):
-    pass
+    data = Delete_Task(ID, data)
+    Add_Task(Newname, data, int(ID))
+    return data
 
 def Delete_Task(ID, data):
-    pass
+    prefix = f"Task{ID}"
+    for key in data:
+        if key.startswith(prefix):
+            del data[key]
+            break
+    return data
+
 
 def Mark_task (ID, status, data):
-    pass
-
+    prefix = f"Task{ID}"
+    for key in data:
+        if key.startswith(prefix):
+            data[key]['status'] = status
+            break
+    return data
 ###################################################################################################################
 
 

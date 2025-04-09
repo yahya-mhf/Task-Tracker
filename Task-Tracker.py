@@ -47,12 +47,14 @@ def Mess_with_data(argument, ID, name, Newname, status):
     elif argument == 'Delete_Task':
         New_data = Delete_Task(ID, data)
 
+
     elif argument == 'Mark_task':
         New_data = Mark_task (ID, status, data)
 
 
     # Sava tha changed informations
     writefile (New_data)
+    return New_data
 
 
 ###########################################
@@ -85,7 +87,7 @@ def Add_Task(name, data, ID = 0, status = 'Todo'):
 ##################################################################################################################
 
 def Update_Task(ID, Newname, data):
-    data = Delete_Task(ID, data)
+    data = Mess_with_data('Delete_Task', ID, None, None, None)
     Add_Task(Newname, data, int(ID))
     return data
 
@@ -102,7 +104,7 @@ def Mark_task (ID, status, data):
     prefix = f"Task{ID}"
     for key in data:
         if key.startswith(prefix):
-            data[key]['status'] = status
+            data[key]['status'] = status[5:]
             break
     return data
 ###################################################################################################################
@@ -132,12 +134,6 @@ def main():
 
     elif len(argv) == 3 and argv[1][:4] == 'mark':
         Mess_with_data('Mark_Task', argv[2], None, None, argv[1])
-
-
-
-
-
-
 
 
     elif len(argv) == 2 and argv[1] == 'list':

@@ -31,11 +31,36 @@ def writefile (data):
     return True
 
 
-def Add_Task(name):
+def Mess_with_data(argument, ID, name, Newname, status):
+    # Read data from the file
+    data = readfile()
+
+
+    New_data = data
+
+    if argument == 'Add_Task':
+        New_data = Add_Task(name, data)
+
+    elif argument == 'Update_Task':
+        New_data = Update_Task(ID, Newname, data)
+
+    elif argument == 'Delete_Task':
+        New_data = Delete_Task(ID, data)
+
+    elif argument == 'Mark_task':
+        New_data = Mark_task (ID, status, data)
+
+
+    # Sava tha changed informations
+    writefile (New_data)
+
+
+###########################################
+def Add_Task(name, data):
     print(f"Task name : {name}")
     ID = 0
 
-    data = readfile()
+    #data = readfile()
     if data:
         ID = len(data)
     else:
@@ -52,9 +77,19 @@ def Add_Task(name):
 
     data[f"Task{ID} : {name}"] = New_task
 
-    writefile (data)
+    return data
+##################################################################################################################
 
-    return ID
+def Update_Task(ID, Newname, data):
+    pass
+
+def Delete_Task(ID, data):
+    pass
+
+def Mark_task (ID, status, data):
+    pass
+
+###################################################################################################################
 
 
 def list_All_Tasks():
@@ -71,9 +106,27 @@ def main():
 
     #t = Task(len(stock), "description", "status", "createdAT", "updatedAT")
     if len(argv) == 3 and argv[1] == 'add':
-        Add_Task(argv[2])
+        Mess_with_data('Add_Task', None, argv[2], None, None)
+
+    elif len(argv) == 4 and argv[1] == 'update' :
+        Mess_with_data('Update_Task', argv[2], None, argv[3], None)
+
+    elif len(argv) == 3 and argv[1] == 'delete':
+        Mess_with_data('Delete_Task', argv[2], None, None, None)
+
+    elif len(argv) == 3 and argv[1][:4] == 'mark':
+        Mess_with_data('Mark_Task', argv[2], None, None, argv[1])
+
+
+
+
+
+
+
+
     elif len(argv) == 2 and argv[1] == 'list':
         list_All_Tasks()
+
     else :
         print("Usage ...")
 

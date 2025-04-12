@@ -22,7 +22,7 @@ def readfile ():
         with open('Tasks.json', 'r') as f:
             data = json.load(f)
             return data
-    return False
+    return {}
 
 
 def writefile (data):
@@ -47,10 +47,8 @@ def Mess_with_data(argument, ID, name, Newname, status):
     elif argument == 'Delete_Task':
         New_data = Delete_Task(ID, data)
 
-
-    elif argument == 'Mark_task':
+    elif argument == 'Mark_Task':
         New_data = Mark_task (ID, status, data)
-
 
     # Sava tha changed informations
     writefile (New_data)
@@ -58,28 +56,34 @@ def Mess_with_data(argument, ID, name, Newname, status):
 
 
 ###########################################
-def Add_Task(name, data, ID = 0, status = 'Todo'):
+def Add_Task(name, data, status = 'Todo'):
+    #remove the updete function
     print(f"Task name : {name}")
 
     updatedAT = "Not updated"
-    #data = readfile()
+
 
     if data:
-        if ID == len(data) - 1:
-            ID = len(data)
-        else:
-            updatedAT = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        existing_iDs = []
+        for key in list(data.keys()):
+            existing_iDs.append(int(key.split()[0][4:]))
+        existing_iDs.sort()
+        ID = existing_iDs[-1] + 1
     else:
-        data = dict()
+        ID = 0
 
 
     print(f"Task ID : {ID}")
     description = input("description : ")
-    #status = "Todo"
     createdAT = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 
-    New_task = {'ID' : ID , 'description' : description, 'status' : status, 'createdAT' : createdAT, 'updatedAT' : updatedAT }
+    New_task = {'ID' : ID ,
+                'description' : description,
+                 'status' : status,
+                 'createdAT' : createdAT,
+                 'updatedAT' : updatedAT
+                }
 
     data[f"Task{ID} : {name}"] = New_task
 
@@ -87,13 +91,24 @@ def Add_Task(name, data, ID = 0, status = 'Todo'):
 ##################################################################################################################
 
 def Update_Task(ID, Newname, data):
-    data = Mess_with_data('Delete_Task', ID, None, None, None)
-    Add_Task(Newname, data, int(ID))
+    # make it independent
+    prefix = f"Task{ID}"
+    for key in list(data.keys()):
+        if key.startswith(prefix):
+            task = data[key]
+            task['description'] = input("description : ")
+            task['updatedAT'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+            new_key = f"Task{ID} : {Newname}"
+            data[new_key] = task
+            del data[key]
+            break
+
     return data
 
 def Delete_Task(ID, data):
     prefix = f"Task{ID}"
-    for key in data:
+    for key in list(data.keys()):
         if key.startswith(prefix):
             del data[key]
             break
@@ -105,6 +120,7 @@ def Mark_task (ID, status, data):
     for key in data:
         if key.startswith(prefix):
             data[key]['status'] = status[5:]
+            data[key]['updatedAT'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             break
     return data
 ###################################################################################################################
@@ -114,9 +130,25 @@ def list_All_Tasks():
 
     data = readfile()
     if data:
-        print(data)
+        for key, value in data.items():
+            print(f"{key} : ")
+            for k , v in value.items():
+                print(f"{k} : {v}")
+            print("")
     else:
         print("there is no Task for the moment")
+
+def List_By_Status(desired_status):
+    data = readfile()
+    if data:
+        for key, value in data.items():
+            if value['status'] == desired_status:
+                print(f"{key} : ")
+                for k , v in value.items():
+                    print(f"{k} : {v}")
+                print("")
+    else:
+        print(f"no Task is in {desired_status}")
 
 
 
@@ -139,8 +171,20 @@ def main():
     elif len(argv) == 2 and argv[1] == 'list':
         list_All_Tasks()
 
+    elif len(argv) == 2 and (argv[1] == 'list-in-progress' or argv[1] == 'list-done' or argv[1] == 'list-todo'):
+        List_By_Status(argv[1][5:])
+
     else :
-        print("Usage ...")
+        print("""
+    Usage:
+    python main.py add "TaskName"
+    python main.py update ID "NewTaskName"
+    python main.py delete ID
+    python main.py markDone ID
+    python main.py markInProgress ID
+    python main.py list
+    python main.py list-status Todo|Done|InProgress
+""")
 
 
 if __name__=="__main__":
